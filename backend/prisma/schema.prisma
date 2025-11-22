@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -34,10 +34,10 @@ model Boat {
   description String
   type        BoatType
   capacity    Int
-  pricePerDay Decimal    @db.Decimal(10, 2)
+  pricePerDay Float
   location    String
-  latitude    Decimal?   @db.Decimal(10, 8)
-  longitude   Decimal?   @db.Decimal(11, 8)
+  latitude    Float?
+  longitude   Float?
   imageUrl    String?
   ownerId     String
   available   Boolean    @default(true)
@@ -66,7 +66,7 @@ model Booking {
   customerId  String
   startDate   DateTime
   endDate     DateTime
-  totalPrice  Decimal       @db.Decimal(10, 2)
+  totalPrice  Float
   status      BookingStatus @default(PENDING)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
