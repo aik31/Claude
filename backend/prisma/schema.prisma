@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  boats     Boat[]
+  bookings  Booking[]
+  reviews   Review[]
+}
+
+enum UserRole {
+  CUSTOMER
+  OWNER
+  ADMIN
+}
+
+model Boat {
+  id          String     @id @default(uuid())
+  name        String
+  description String
+  type        BoatType
+  capacity    Int
+  pricePerDay Decimal    @db.Decimal(10, 2)
+  location    String
+  latitude    Decimal?   @db.Decimal(10, 8)
+  longitude   Decimal?   @db.Decimal(11, 8)
+  imageUrl    String?
+  ownerId     String
+  available   Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  owner       User       @relation(fields: [ownerId], references: [id])
+  bookings    Booking[]
+  reviews     Review[]
+}
+
+enum BoatType {
+  SAILBOAT
+  MOTORBOAT
+  YACHT
+  CATAMARAN
+  PONTOON
+  FISHING
+  SPEEDBOAT
+  OTHER
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  boatId      String
+  customerId  String
+  startDate   DateTime
+  endDate     DateTime
+  totalPrice  Decimal       @db.Decimal(10, 2)
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  boat        Boat          @relation(fields: [boatId], references: [id])
+  customer    User          @relation(fields: [customerId], references: [id])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  boatId     String
+  userId     String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  boat       Boat     @relation(fields: [boatId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+}
